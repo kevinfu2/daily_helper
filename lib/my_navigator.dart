@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'page.dart';
 import 'package:daily_helper/navigateor/TabNavigator.dart';
 
-
 class MyHomePage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -12,24 +11,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePage extends State<MyHomePage> {
-  TabItem _currentTab = TabItem.project;
-  int _currentIndex = 0;
-  final _views = <Widget>[];
+  static const tabs = <TabItem>[
+    TabItem(name: "项目", icon: Icons.access_alarm, route: "/project"),
+    TabItem(name: "日历", icon: Icons.calendar_today,route: "/calendar"),
+    TabItem(name: "轨迹", icon: Icons.map,route: "/trace"),
+  ];
 
-  Map<TabItem, GlobalKey<NavigatorState>> navigatorKeys = {
-    TabItem.red: GlobalKey<NavigatorState>(),
-    TabItem.green: GlobalKey<NavigatorState>(),
-    TabItem.blue: GlobalKey<NavigatorState>(),
-  };
-  
+  TabItem _currentTab = tabs[0];
+
+  Map<TabItem, GlobalKey<NavigatorState>> navigatorKeys = Map.fromIterable(tabs,
+      key: (item) => item, value: (item) => GlobalKey<NavigatorState>());
+
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-
     final bottomBar = BottomNavigationBar(
       onTap: (int index) {
         setState(() {
-          _currentIndex = index;
+          _currentTab = tabs[index];
         });
       },
       items: _getBottomBarItem(),
@@ -39,33 +38,31 @@ class _MyHomePage extends State<MyHomePage> {
 
     return Scaffold(
       appBar: _buildAppbar(),
-      body: _buildBody(),
+      body: Stack(
+        children: tabs.map(_buildNavitationBarItem).toList(),
+      ),
       bottomNavigationBar: bottomBar,
     );
   }
 
-  Widget _buildBody() {
-    return Stack(
-      children: <Widget>[
-        Offstage(
-          offstage: _currentIndex != 0,
-          child: TickerMode(
-              enabled: _currentIndex == 0,
-              child: MyPage(
-                title: 'first',
-              )),
+  Widget _buildNavitationBarItem(TabItem tabItem) {
+    return Offstage(
+      offstage: _currentTab != tabItem,
+      child: TickerMode(
+        enabled: _currentTab == tabItem,
+        child: Navigator(
+          initialRoute: tabItem.route,
+          key: navigatorKeys[tabItem],
+          onGenerateRoute: (routeSettings) {
+            print(routeSettings.name);
+            return MaterialPageRoute(
+              builder: (context) => MyPage(
+                    title: _currentTab.name,
+                  ),
+            );
+          },
         ),
-        Offstage(
-          offstage: _currentIndex != 1,
-          child: TickerMode(
-            enabled: _currentIndex == 1,
-            child: MaterialApp(
-                home: MyPage(
-              title: 'second',
-            )),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -78,20 +75,16 @@ class _MyHomePage extends State<MyHomePage> {
   }
 
   List<BottomNavigationBarItem> _getBottomBarItem() {
-    final items = <BottomNavigationBarItem>[
-      BottomNavigationBarItem(
-        icon: const Icon(Icons.access_alarm),
-        title: Text('项目'),
-      ),
-      BottomNavigationBarItem(
-        icon: const Icon(Icons.calendar_today),
-        title: Text('日历'),
-      ),
-      BottomNavigationBarItem(
-        icon: const Icon(Icons.map),
-        title: Text('轨迹'),
-      ),
-    ];
-    return items;
+    return tabs.map( (e)=> BottomNavigationBarItem(
+        icon:  Icon( e.icon,
+         color: _currentTab == e ? Theme.of(context).primaryColor : Colors.grey
+        ),
+        title: Text(e.name,
+         style: TextStyle(
+          color: _currentTab == e ? Theme.of(context).primaryColor : Colors.grey
+         ),
+        ),
+
+      ) ).toList();
   }
 }
