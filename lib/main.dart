@@ -5,7 +5,7 @@ import 'package:flutter/rendering.dart';
 void main() => (){
   debugPaintSizeEnabled=true;
   runApp( MyApp());
-}
+};
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -15,6 +15,9 @@ class MyApp extends StatelessWidget {
       title: '一个测试',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: Colors.lightBlue[800],
+        accentColor: Colors.cyan[600],
         primarySwatch: Colors.blue,
       ),
       home: new MyHomePage(),

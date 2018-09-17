@@ -47,7 +47,7 @@ class _MyHomePage extends State<MyHomePage> {
     );
 
     return Scaffold(
-      //appBar: _buildAppbar(),
+      // appBar: _buildAppbar(),
       body: Stack(
         children: tabs.map<Widget>(_buildNavitationBarItem).toList(),
       ),
@@ -88,6 +88,18 @@ class _MyHomePage extends State<MyHomePage> {
       elevation: 1.0,
       title: Text('Hello, Word'),
       centerTitle: true,
+      leading: IconButton(
+        icon: Icon(Icons.menu),
+        tooltip: 'Navigate Menu',
+        onPressed: null,
+      ),
+      actions: <Widget>[
+        IconButton(
+          onPressed: null,
+          icon: Icon(Icons.search),
+          tooltip: 'Search',
+        ),
+      ],
     );
   }
 
