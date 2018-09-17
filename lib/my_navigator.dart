@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 import 'page.dart';
-import 'package:daily_helper/navigateor/TabNavigator.dart';
+import 'trace/trace.dart';
+
+class TabItem {
+  const TabItem({this.name, this.icon, this.route});
+  @required
+  final String name;
+  @required
+  final String route;
+  @required
+  final IconData icon;
+}
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -12,16 +22,16 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePage extends State<MyHomePage> {
   static const tabs = <TabItem>[
-    TabItem(name: "项目", icon: Icons.access_alarm, route: "/project"),
-    TabItem(name: "日历", icon: Icons.calendar_today,route: "/calendar"),
-    TabItem(name: "轨迹", icon: Icons.map,route: "/trace"),
+    TabItem(name: "项目", icon: Icons.access_alarm, route: "/"),
+    TabItem(name: "日历", icon: Icons.calendar_today, route: "/"),
+    TabItem(name: "轨迹", icon: Icons.map, route: "/"),
   ];
 
   TabItem _currentTab = tabs[0];
 
-  Map<TabItem, GlobalKey<NavigatorState>> navigatorKeys = Map.fromIterable(tabs,
-      key: (item) => item, value: (item) => GlobalKey<NavigatorState>());
-
+  static Map<TabItem, GlobalKey<NavigatorState>> navigatorKeys =
+      Map.fromIterable(tabs,
+          key: (item) => item, value: (item) => GlobalKey<NavigatorState>());
 
   @override
   Widget build(BuildContext context) {
@@ -37,28 +47,35 @@ class _MyHomePage extends State<MyHomePage> {
     );
 
     return Scaffold(
-      appBar: _buildAppbar(),
+      //appBar: _buildAppbar(),
       body: Stack(
-        children: tabs.map(_buildNavitationBarItem).toList(),
+        children: tabs.map<Widget>(_buildNavitationBarItem).toList(),
       ),
       bottomNavigationBar: bottomBar,
     );
   }
 
+  Widget _navigate(BuildContext context) {
+    if (_currentTab.name == '轨迹')
+      return Trace();
+    else
+      return MyPage(
+        title: _currentTab.name,
+      );
+  }
+
   Widget _buildNavitationBarItem(TabItem tabItem) {
     return Offstage(
       offstage: _currentTab != tabItem,
-      child: TickerMode(
-        enabled: _currentTab == tabItem,
+      child: new TickerMode(
+        enabled: true,
         child: Navigator(
           initialRoute: tabItem.route,
           key: navigatorKeys[tabItem],
           onGenerateRoute: (routeSettings) {
-            print(routeSettings.name);
+            print(routeSettings.name + ' ' + tabItem.name);
             return MaterialPageRoute(
-              builder: (context) => MyPage(
-                    title: _currentTab.name,
-                  ),
+              builder: (context) => _navigate(context),
             );
           },
         ),
@@ -69,22 +86,26 @@ class _MyHomePage extends State<MyHomePage> {
   Widget _buildAppbar() {
     return AppBar(
       elevation: 1.0,
-      title: Text('测试标题'),
+      title: Text('Hello, Word'),
       centerTitle: true,
     );
   }
 
   List<BottomNavigationBarItem> _getBottomBarItem() {
-    return tabs.map( (e)=> BottomNavigationBarItem(
-        icon:  Icon( e.icon,
-         color: _currentTab == e ? Theme.of(context).primaryColor : Colors.grey
-        ),
-        title: Text(e.name,
-         style: TextStyle(
-          color: _currentTab == e ? Theme.of(context).primaryColor : Colors.grey
-         ),
-        ),
-
-      ) ).toList();
+    return tabs
+        .map((e) => BottomNavigationBarItem(
+              icon: Icon(e.icon,
+                  color: _currentTab == e
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey),
+              title: Text(
+                e.name,
+                style: TextStyle(
+                    color: _currentTab == e
+                        ? Theme.of(context).primaryColor
+                        : Colors.grey),
+              ),
+            ))
+        .toList();
   }
 }
