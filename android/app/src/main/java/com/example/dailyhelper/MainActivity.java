@@ -1,4 +1,4 @@
-package com.example.dailyhelper;
+package com.unain.dailyhelper;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
