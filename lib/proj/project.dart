@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyProj extends StatefulWidget {
   MyProj({Key key}) : super(key: key);
@@ -66,6 +67,19 @@ class _MyProj extends State<MyProj> {
               value: _selectedItem,
               items: _dropDownMenuItems,
               onChanged: changedDropDownItem,
+            ),
+            new StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance.collection("Teams").snapshots(),
+                    builder: (context, snapshot){
+                    var length = snapshot.data.documents.length;
+                    DocumentSnapshot ds = snapshot.data.documents[length];
+                    return new DropdownButton(
+                       items: snapshot.data.documents.map( (documents) => DropdownMenuItem(child: Text(documents.documentID))),    
+                    onChanged: changedDropDownItem,
+                    //hint: new Text("Join a Team"),
+                    //value: team
+                  );
+              },
             ),
             RaisedButton(
               onPressed: () => setState(() {
