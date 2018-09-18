@@ -87,3 +87,6 @@ unlinked_spec.ds
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 pubspec.lock
 android/app/google-services.json
+key.jks
+key.jks.old
+android/key.properties
