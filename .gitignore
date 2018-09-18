@@ -90,3 +90,4 @@ android/app/google-services.json
 key.jks
 key.jks.old
 android/key.properties
+*.lock
