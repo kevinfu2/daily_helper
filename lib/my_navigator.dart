@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'page.dart';
 import 'trace/trace.dart';
+import 'proj/project.dart';
 import 'calendar/firebase.dart';
 
 class TabItem {
@@ -64,9 +64,7 @@ class _MyHomePage extends State<MyHomePage> {
         title: _currentTab.name,
       );
     else
-      return MyPage(
-        title: _currentTab.name,
-      );
+      return MyProj();
   }
 
   Widget _buildNavitationBarItem(TabItem tabItem) {
