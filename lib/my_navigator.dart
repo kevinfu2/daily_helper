@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'page.dart';
 import 'trace/trace.dart';
+import 'calendar/firebase.dart';
 
 class TabItem {
   const TabItem({this.name, this.icon, this.route});
@@ -58,6 +59,10 @@ class _MyHomePage extends State<MyHomePage> {
   Widget _navigate(BuildContext context) {
     if (_currentTab.name == '轨迹')
       return Trace();
+    else if (_currentTab.name == '日历')
+      return FirebaseApp(
+        title: _currentTab.name,
+      );
     else
       return MyPage(
         title: _currentTab.name,
