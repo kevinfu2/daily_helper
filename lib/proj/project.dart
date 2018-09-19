@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -13,12 +13,15 @@ class MyProj extends StatefulWidget {
 class _MyProj extends State<MyProj> {
   String _selectedItem;
   String _currentItem;
+  DateTime _currentTime;
+  Position  _currentLocation;
 
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   @override
   void initState() {
     super.initState();
     _currentItem = 'initial';
+    _currentTime = DateTime.now();
     _initialSelectItem();
   }
 
@@ -37,10 +40,24 @@ class _MyProj extends State<MyProj> {
     });
   }
 
-  void changedDropDownItem(String selectedCity) {
+  void changedDropDownItem(String selected) {
     setState(() {
-      _selectedItem = selectedCity;
+      _selectedItem = selected;
     });
+  }
+
+  Future _onPress() async {
+    _getLocation();
+    if (_currentItem != _selectedItem)
+      setState(() {
+        _currentItem = _selectedItem;
+        _currentTime = DateTime.now();
+      });
+    else
+      _currentItem = _selectedItem;
+  }
+  Future _getLocation() async{
+    _currentLocation = await Geolocator().getCurrentPosition(LocationAccuracy.high);
   }
 
   @override
@@ -55,6 +72,13 @@ class _MyProj extends State<MyProj> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            _currentLocation == null? Text('empty'): Container( child: Column(
+               children: <Widget>[
+                  Text(_currentLocation.latitude.toString()),
+                  Text(_currentLocation.longitude.toString()),
+               ],
+            ),) ,
+            Text(_currentTime.toString()),
             Text(_currentItem),
             Text("请选择你的项目: "),
             Container(
@@ -70,9 +94,7 @@ class _MyProj extends State<MyProj> {
                     onChanged: changedDropDownItem,
                   ),
             RaisedButton(
-              onPressed: () => setState(() {
-                    _currentItem = _selectedItem + DateTime.now().toString();
-                  }),
+              onPressed: _onPress,
               child: Text('添加'),
             )
           ],
