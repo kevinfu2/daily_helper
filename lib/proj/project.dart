@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -9,38 +11,33 @@ class MyProj extends StatefulWidget {
 }
 
 class _MyProj extends State<MyProj> {
-  List _cities = [
-    "Cluj-Napoca",
-    "Bucuresti",
-    "Timisoara",
-    "Brasov",
-    "Constanta"
-  ];
-
-  List<DropdownMenuItem<String>> _dropDownMenuItems;
   String _selectedItem;
   String _currentItem;
 
+  List<DropdownMenuItem<String>> _dropDownMenuItems;
   @override
   void initState() {
-    _dropDownMenuItems = getDropDownMenuItems();
-    _selectedItem = _dropDownMenuItems[0].value;
-    _currentItem = _dropDownMenuItems[0].value;
     super.initState();
+    _currentItem = 'initial';
+    _initialSelectItem();
   }
 
-  List<DropdownMenuItem<String>> getDropDownMenuItems() {
-    List<DropdownMenuItem<String>> items = new List();
-    for (String city in _cities) {
-      // here we are creating the drop down menu items, you can customize the item right here
-      // but I'll just use a simple text for this
-      items.add(new DropdownMenuItem(value: city, child: new Text(city)));
-    }
-    return items;
+  Future _initialSelectItem() async {
+    var snapshot =
+        await Firestore.instance.collection("consumetype").getDocuments();
+    _dropDownMenuItems = snapshot.documents
+        .map((f) => DropdownMenuItem<String>(
+              child: Text(f['name']),
+              value: f.documentID,
+            ))
+        .toList();
+    setState(() {
+      _selectedItem = _dropDownMenuItems[0].value;
+      _currentItem = _dropDownMenuItems[0].value;
+    });
   }
 
   void changedDropDownItem(String selectedCity) {
-    print("Selected city $selectedCity, we are going to refresh the UI");
     setState(() {
       _selectedItem = selectedCity;
     });
@@ -63,27 +60,18 @@ class _MyProj extends State<MyProj> {
             Container(
               padding: EdgeInsets.all(16.0),
             ),
-            DropdownButton(
-              value: _selectedItem,
-              items: _dropDownMenuItems,
-              onChanged: changedDropDownItem,
-            ),
-            new StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance.collection("Teams").snapshots(),
-                    builder: (context, snapshot){
-                    var length = snapshot.data.documents.length;
-                    DocumentSnapshot ds = snapshot.data.documents[length];
-                    return new DropdownButton(
-                       items: snapshot.data.documents.map( (documents) => DropdownMenuItem(child: Text(documents.documentID))),    
+            _dropDownMenuItems == null
+                ? Container(
+                    child: Text('Loading...'),
+                  )
+                : DropdownButton(
+                    value: _selectedItem,
+                    items: _dropDownMenuItems,
                     onChanged: changedDropDownItem,
-                    //hint: new Text("Join a Team"),
-                    //value: team
-                  );
-              },
-            ),
+                  ),
             RaisedButton(
               onPressed: () => setState(() {
-                    _currentItem = _selectedItem;
+                    _currentItem = _selectedItem + DateTime.now().toString();
                   }),
               child: Text('添加'),
             )
