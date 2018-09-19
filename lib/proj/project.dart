@@ -14,7 +14,8 @@ class _MyProj extends State<MyProj> {
   String _selectedItem;
   String _currentItem;
   DateTime _currentTime;
-  Position  _currentLocation;
+  Position _currentLocation;
+  DocumentReference _documentRef;
 
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   @override
@@ -48,16 +49,34 @@ class _MyProj extends State<MyProj> {
 
   Future _onPress() async {
     _getLocation();
-    if (_currentItem != _selectedItem)
+    if (_currentItem != _selectedItem) {
       setState(() {
         _currentItem = _selectedItem;
         _currentTime = DateTime.now();
       });
-    else
+      if (_documentRef != null) {
+        Firestore.instance.runTransaction((transaction) async {
+          DocumentSnapshot freshSnap = await transaction.get(_documentRef);
+          await transaction
+              .update(freshSnap.reference, {'endtime': _currentTime});
+        });
+      }
+      if (_currentLocation != null)
+        Firestore.instance.collection('consumerecords').add({
+          'name': _currentItem,
+          'starttime': _currentTime,
+          'location': {
+            'latitude': _currentLocation.latitude,
+            'longitude': _currentLocation.longitude,
+          },
+        }).then((docRef) => _documentRef = docRef);
+    } else
       _currentItem = _selectedItem;
   }
-  Future _getLocation() async{
-    _currentLocation = await Geolocator().getCurrentPosition(LocationAccuracy.high);
+
+  Future _getLocation() async {
+    _currentLocation =
+        await Geolocator().getCurrentPosition(LocationAccuracy.high);
   }
 
   @override
@@ -72,12 +91,16 @@ class _MyProj extends State<MyProj> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            _currentLocation == null? Text('empty'): Container( child: Column(
-               children: <Widget>[
-                  Text(_currentLocation.latitude.toString()),
-                  Text(_currentLocation.longitude.toString()),
-               ],
-            ),) ,
+            _currentLocation == null
+                ? Text('empty')
+                : Container(
+                    child: Column(
+                      children: <Widget>[
+                        Text(_currentLocation.latitude.toString()),
+                        Text(_currentLocation.longitude.toString()),
+                      ],
+                    ),
+                  ),
             Text(_currentTime.toString()),
             Text(_currentItem),
             Text("请选择你的项目: "),
