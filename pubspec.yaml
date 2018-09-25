@@ -10,6 +10,9 @@ dependencies:
   cupertino_icons: ^0.1.2
   geolocator: ^1.7.0
   permission_handler: ^2.0.0
+  sqflite: any
+  path: ^1.6.2
+  path_provider: ^0.4.1
 
 dev_dependencies:
   flutter_test:
