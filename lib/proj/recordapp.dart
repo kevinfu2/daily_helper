@@ -31,14 +31,23 @@ class _RecordApp extends State<RecordApp> {
     if (provider == null) {
       provider = new RecordDBProvider();
       await provider.open("dh.db");
-       var items = await provider.getRecordTypes();
-      _dropDownMenuItems = items.map((f) => DropdownMenuItem<String>(
-              child: Text(f.name),
-              value: f.id.toString(),
-            ))
-        .toList();
+      var items = await provider.getRecordTypes();
+      if (items != null)
+        _dropDownMenuItems = items
+            .map((f) => DropdownMenuItem<String>(
+                  child: Text(f.name),
+                  value: f.name,
+                ))
+            .toList();
+      else
+        _dropDownMenuItems = <DropdownMenuItem<String>>[
+            DropdownMenuItem<String>(
+                  child: Text('loading...'),
+                  value: "loading",
+                )
+        ];
     }
-     
+
     if (this.mounted)
       setState(() {
         _selectedItem = _dropDownMenuItems[0].value;
@@ -63,9 +72,11 @@ class _RecordApp extends State<RecordApp> {
         });
       if (_currentLocation != null)
         _record = await provider.insertRecord(Record(
-           _currentItem, "text",  _currentLocation.latitude, _currentLocation.longitude, DateTime.now()
-        ));
-        
+            _currentItem,
+            "text",
+            _currentLocation.latitude,
+            _currentLocation.longitude,
+            DateTime.now()));
     } else
       _currentItem = _selectedItem;
   }
@@ -88,7 +99,7 @@ class _RecordApp extends State<RecordApp> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             _currentLocation == null
-                ? Text('empty')
+                ? Text('locatin empty')
                 : Container(
                     child: Column(
                       children: <Widget>[

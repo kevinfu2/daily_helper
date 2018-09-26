@@ -67,7 +67,9 @@ class Record {
     latitude = map[columnLat];
     longtitude = map[columnLot];
     startTime = DateTime.parse(map[columnStartTime]);
-    endTime = map[columnEndTime] == null ? DateTime.now() : DateTime.parse(map[columnEndTime]);
+    endTime = map[columnEndTime] == null
+        ? DateTime.now()
+        : DateTime.parse(map[columnEndTime]);
   }
 }
 
@@ -109,13 +111,26 @@ class RecordDBProvider {
         where: "$columnId = ?", whereArgs: [record.id]);
   }
 
-  Future<List<Record>> getRecord() async {
+  Future<List<Record>> getRecords() async {
     List<Map> maps = await db.query(tableRecord, columns: [
       columnId,
       columnName,
     ]);
     if (maps.length > 0) {
       return maps.map((f) => Record.fromMap(f)).toList();
+    }
+    return null;
+  }
+
+  Future<Record> getStartedRecord() async {
+    List<Map> maps = await db.query(tableRecordType,
+        columns: [
+          columnId,
+          columnName,
+        ],
+        where: "$columnEndTime  IS NULL");
+    if (maps.length > 0) {
+      return new Record.fromMap(maps.first);
     }
     return null;
   }
