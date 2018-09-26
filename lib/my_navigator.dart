@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'trace/trace.dart';
 import 'proj/project.dart';
-import 'calendar/firebase.dart';
 import 'calendar/calapp.dart';
-import 'calendar/textfield.dart';
+import 'calendar/firebase.dart';
 
 class TabItem {
   const TabItem({this.name, this.icon, this.route});
@@ -29,6 +28,27 @@ class _MyHomePage extends State<MyHomePage> {
     TabItem(name: "日历", icon: Icons.calendar_today, route: "/"),
     TabItem(name: "轨迹", icon: Icons.map, route: "/"),
   ];
+  Map<String, FocusScopeNode> _focusNodes = {
+    "项目": FocusScopeNode(),
+    "日历": FocusScopeNode(),
+    "轨迹": FocusScopeNode(),
+  };
+
+  @override
+  void initState() {
+    super.initState();
+
+    // _focusNodes["项目"] = FocusScopeNode();
+    // _focusNodes["日历"] = FocusScopeNode();
+    // _focusNodes["轨迹"] = FocusScopeNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNodes["项目"].detach();
+    _focusNodes["日历"].detach();
+    _focusNodes["轨迹"].detach();
+  }
 
   TabItem _currentTab = tabs[0];
 
@@ -42,6 +62,7 @@ class _MyHomePage extends State<MyHomePage> {
       onTap: (int index) {
         setState(() {
           _currentTab = tabs[index];
+          FocusScope.of(context).setFirstFocus(_focusNodes[_currentTab.name]);
         });
       },
       items: _getBottomBarItem(),
@@ -74,15 +95,18 @@ class _MyHomePage extends State<MyHomePage> {
       offstage: _currentTab != tabItem,
       child: new TickerMode(
         enabled: true,
-        child: Navigator(
-          initialRoute: tabItem.route,
-          key: navigatorKeys[tabItem],
-          onGenerateRoute: (routeSettings) {
-            print(routeSettings.name + ' ' + tabItem.name);
-            return MaterialPageRoute(
-              builder: (context) => _navigate(context),
-            );
-          },
+        child: FocusScope(
+          node: _focusNodes[tabItem.name],
+          child: Navigator(
+            initialRoute: tabItem.route,
+            key: navigatorKeys[tabItem],
+            onGenerateRoute: (routeSettings) {
+              print(routeSettings.name + ' ' + tabItem.name);
+              return MaterialPageRoute(
+                builder: (context) => _navigate(context),
+              );
+            },
+          ),
         ),
       ),
     );

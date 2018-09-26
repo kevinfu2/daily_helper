@@ -18,6 +18,7 @@ class _CalAPP extends State<CalAPP> {
   void initState() {
     super.initState();
     _initialProvider();
+    myController.text = 'hello';
   }
 
   @override
@@ -38,8 +39,8 @@ class _CalAPP extends State<CalAPP> {
 
   Future _insert() async {
     if (provider != null) {
-      //var record = await provider.insert(new RecordType(myController.text));
-      print(myController.text);
+      var record = await provider.insert(new RecordType(myController.text));
+      print(record.name);
     }
   }
 
@@ -47,21 +48,27 @@ class _CalAPP extends State<CalAPP> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return new Scaffold(
-      appBar: new AppBar(title: new Text('title')),
+      //appBar: new AppBar(title: new Text('title')),
+
+       resizeToAvoidBottomPadding: false,
       body: Container(
-        child: Column(
+        child:
+         ListView( 
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: TextField(
                 controller: myController,
+                decoration: InputDecoration(
+                   hintText: "please input new category",
+                ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: RaisedButton(
                 onPressed: _buttonClick,
-                child: Text('添加类别'),
+                child: Text('Add'),
               ),
             ),
           ],

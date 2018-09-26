@@ -42,9 +42,10 @@ class _MyProj extends State<MyProj> {
   }
 
   void changedDropDownItem(String selected) {
-    setState(() {
-      _selectedItem = selected;
-    });
+    if (this.mounted)
+      setState(() {
+        _selectedItem = selected;
+      });
   }
 
   Future _onPress() async {
