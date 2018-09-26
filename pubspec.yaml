@@ -13,6 +13,7 @@ dependencies:
   sqflite: ^0.12.1
   path: ^1.6.2
   path_provider: ^0.4.1
+  synchronized: ^1.5.3
 
 dev_dependencies:
   flutter_test:

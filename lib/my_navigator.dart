@@ -1,8 +1,7 @@
+import 'package:daily_helper/proj/recordapp.dart';
 import 'package:flutter/material.dart';
 import 'trace/trace.dart';
-import 'proj/project.dart';
-import 'calendar/calapp.dart';
-import 'calendar/firebase.dart';
+import 'proj/cateapp.dart';
 
 class TabItem {
   const TabItem({this.name, this.icon, this.route});
@@ -83,11 +82,11 @@ class _MyHomePage extends State<MyHomePage> {
     if (_currentTab.name == '轨迹')
       return Trace();
     else if (_currentTab.name == '日历')
-      return CalAPP(
+      return CategoryAPP(
         title: _currentTab.name,
       );
     else
-      return MyProj();
+      return RecordApp();
   }
 
   Widget _buildNavitationBarItem(TabItem tabItem) {

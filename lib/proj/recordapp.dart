@@ -1,21 +1,22 @@
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:daily_helper/del/recordtype.dart';
 
-class MyProj extends StatefulWidget {
-  MyProj({Key key}) : super(key: key);
+class RecordApp extends StatefulWidget {
+  RecordApp({Key key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _MyProj();
+  State<StatefulWidget> createState() => _RecordApp();
 }
 
-class _MyProj extends State<MyProj> {
+class _RecordApp extends State<RecordApp> {
   String _selectedItem;
   String _currentItem;
   DateTime _currentTime;
   Position _currentLocation;
-  DocumentReference _documentRef;
+  Record _record;
+  RecordDBProvider provider;
 
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   @override
@@ -27,14 +28,17 @@ class _MyProj extends State<MyProj> {
   }
 
   Future _initialSelectItem() async {
-    var snapshot =
-        await Firestore.instance.collection("consumetype").getDocuments();
-    _dropDownMenuItems = snapshot.documents
-        .map((f) => DropdownMenuItem<String>(
-              child: Text(f['name']),
-              value: f.documentID,
+    if (provider == null) {
+      provider = new RecordDBProvider();
+      await provider.open("dh.db");
+       var items = await provider.getRecordTypes();
+      _dropDownMenuItems = items.map((f) => DropdownMenuItem<String>(
+              child: Text(f.name),
+              value: f.id.toString(),
             ))
         .toList();
+    }
+     
     if (this.mounted)
       setState(() {
         _selectedItem = _dropDownMenuItems[0].value;
@@ -57,22 +61,11 @@ class _MyProj extends State<MyProj> {
           _currentItem = _selectedItem;
           _currentTime = DateTime.now();
         });
-      if (_documentRef != null) {
-        Firestore.instance.runTransaction((transaction) async {
-          DocumentSnapshot freshSnap = await transaction.get(_documentRef);
-          await transaction
-              .update(freshSnap.reference, {'endtime': _currentTime});
-        });
-      }
       if (_currentLocation != null)
-        Firestore.instance.collection('consumerecords').add({
-          'name': _currentItem,
-          'starttime': _currentTime,
-          'location': {
-            'latitude': _currentLocation.latitude,
-            'longitude': _currentLocation.longitude,
-          },
-        }).then((docRef) => _documentRef = docRef);
+        _record = await provider.insertRecord(Record(
+           _currentItem, "text",  _currentLocation.latitude, _currentLocation.longitude, DateTime.now()
+        ));
+        
     } else
       _currentItem = _selectedItem;
   }
