@@ -71,6 +71,10 @@ class Record {
         ? DateTime.now()
         : DateTime.parse(map[columnEndTime]);
   }
+
+  static Record init() {
+    return new Record("loading", "default", 0.0, 0.0, DateTime.now());
+  }
 }
 
 class RecordDBProvider {
@@ -111,10 +115,20 @@ class RecordDBProvider {
         where: "$columnId = ?", whereArgs: [record.id]);
   }
 
+  Future<int> deleteRecord(int id) async {
+    return await db
+        .delete(tableRecord, where: "$columnId = ?", whereArgs: [id]);
+  }
+
   Future<List<Record>> getRecords() async {
     List<Map> maps = await db.query(tableRecord, columns: [
       columnId,
       columnName,
+      columnCate,
+      columnLat,
+      columnLot,
+      columnStartTime,
+      columnEndTime,
     ]);
     if (maps.length > 0) {
       return maps.map((f) => Record.fromMap(f)).toList();
@@ -123,10 +137,15 @@ class RecordDBProvider {
   }
 
   Future<Record> getStartedRecord() async {
-    List<Map> maps = await db.query(tableRecordType,
+    List<Map> maps = await db.query(tableRecord,
         columns: [
           columnId,
           columnName,
+          columnCate,
+          columnLat,
+          columnLot,
+          columnStartTime,
+          columnEndTime,
         ],
         where: "$columnEndTime  IS NULL");
     if (maps.length > 0) {

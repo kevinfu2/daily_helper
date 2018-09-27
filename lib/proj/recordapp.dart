@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:daily_helper/proj/recordlist.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:daily_helper/del/recordtype.dart';
@@ -12,18 +13,14 @@ class RecordApp extends StatefulWidget {
 
 class _RecordApp extends State<RecordApp> {
   String _selectedItem;
-  String _currentItem;
-  DateTime _currentTime;
-  Position _currentLocation;
-  Record _record;
+  Record _record = Record.init();
   RecordDBProvider provider;
 
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   @override
   void initState() {
     super.initState();
-    _currentItem = 'initial';
-    _currentTime = DateTime.now();
+    _selectedItem = "loading";
     _initialSelectItem();
   }
 
@@ -31,28 +28,35 @@ class _RecordApp extends State<RecordApp> {
     if (provider == null) {
       provider = new RecordDBProvider();
       await provider.open("dh.db");
-      var items = await provider.getRecordTypes();
-      if (items != null)
-        _dropDownMenuItems = items
-            .map((f) => DropdownMenuItem<String>(
-                  child: Text(f.name),
-                  value: f.name,
-                ))
-            .toList();
-      else
-        _dropDownMenuItems = <DropdownMenuItem<String>>[
+      await provider.getRecordTypes().then((items) {
+        if (items != null) {
+          _dropDownMenuItems = items
+              .map((f) => DropdownMenuItem<String>(
+                    child: Text(f.name),
+                    value: f.name,
+                  ))
+              .toList();
+          if (this.mounted)
+            setState(() {
+              _selectedItem = items[0].name;
+            });
+        } else
+          _dropDownMenuItems = <DropdownMenuItem<String>>[
             DropdownMenuItem<String>(
-                  child: Text('loading...'),
-                  value: "loading",
-                )
-        ];
-    }
-
-    if (this.mounted)
-      setState(() {
-        _selectedItem = _dropDownMenuItems[0].value;
-        _currentItem = _dropDownMenuItems[0].value;
+              child: Text('loading'),
+              value: "loading",
+            )
+          ];
       });
+
+      await provider.getStartedRecord().then((value) {
+        if (value != null && this.mounted)
+          setState(() {
+            _record = value;
+          });
+        if (_record.latitude == 0.0) _updatePosition();
+      });
+    }
   }
 
   void changedDropDownItem(String selected) {
@@ -63,27 +67,34 @@ class _RecordApp extends State<RecordApp> {
   }
 
   Future _onPress() async {
-    _getLocation();
-    if (_currentItem != _selectedItem) {
+    if (_record.name != _selectedItem) {
+      if (_record.id != null) {
+        _record.endTime = DateTime.now();
+        await provider
+            .updateRecord(_record)
+            .then((int) => _record = Record.init());
+      }
       if (this.mounted)
         setState(() {
-          _currentItem = _selectedItem;
-          _currentTime = DateTime.now();
+          _record.name = _selectedItem;
+          _record.startTime = DateTime.now();
         });
-      if (_currentLocation != null)
-        _record = await provider.insertRecord(Record(
-            _currentItem,
-            "text",
-            _currentLocation.latitude,
-            _currentLocation.longitude,
-            DateTime.now()));
-    } else
-      _currentItem = _selectedItem;
+      _record = await provider.insertRecord(_record);
+      _updatePosition();
+    }
   }
 
-  Future _getLocation() async {
-    _currentLocation =
-        await Geolocator().getCurrentPosition(LocationAccuracy.high);
+  Future _updatePosition() async {
+    await Geolocator()
+        .getCurrentPosition(LocationAccuracy.high)
+        .then((position) {
+      if (this.mounted)
+        setState(() {
+          _record.latitude = position.latitude;
+          _record.longtitude = position.longitude;
+        });
+      provider.updateRecord(_record);
+    });
   }
 
   @override
@@ -91,26 +102,24 @@ class _RecordApp extends State<RecordApp> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        title: Text('项目'),
+        title: Text('Daily Items'),
       ),
       body: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            _currentLocation == null
-                ? Text('locatin empty')
-                : Container(
-                    child: Column(
-                      children: <Widget>[
-                        Text(_currentLocation.latitude.toString()),
-                        Text(_currentLocation.longitude.toString()),
-                      ],
-                    ),
-                  ),
-            Text(_currentTime.toString()),
-            Text(_currentItem),
-            Text("请选择你的项目: "),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  Text(_record.latitude.toString()),
+                  Text(_record.longtitude.toString()),
+                ],
+              ),
+            ),
+            Text(_record.startTime.toString()),
+            Text(_record.name),
+            Text("Select your item: "),
             Container(
               padding: EdgeInsets.all(16.0),
             ),
@@ -125,8 +134,17 @@ class _RecordApp extends State<RecordApp> {
                   ),
             RaisedButton(
               onPressed: _onPress,
-              child: Text('添加'),
-            )
+              child: Text('Add'),
+            ),
+            RaisedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RecordList()),
+                );
+              },
+              child: Text('View'),
+            ),
           ],
         ),
       ),
