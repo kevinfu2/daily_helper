@@ -60,56 +60,68 @@ class _CalAPP extends State<CategoryAPP> {
     return new Scaffold(
       appBar: new AppBar(title: new Text('Add Category')),
       resizeToAvoidBottomPadding: false,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          TextField(
-            controller: myController,
-            decoration: InputDecoration(
-              hintText: "please input new category",
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 26.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            const SizedBox(height: 24.0),
+            TextField(
+              controller: myController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: "please input new category",
+                filled: true,
+                labelText: "Category",
+                icon: Icon(Icons.category),
+              ),
+              maxLines: 1,
             ),
-          ),
-          RaisedButton(
-            onPressed: _buttonClick,
-            child: Text('Add'),
-          ),
-          types == null
-              ? Container(
-                  child: Text('Loading...'),
-                )
-              : Expanded(
-                  child: ListView.builder(
-                    itemCount: types.length,
-                    padding: const EdgeInsets.only(top: 10.0),
-                    itemExtent: 55.0,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                          key: ValueKey(types[index].id),
-                          title: Container(
-                            decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: const Color(0x80000000)),
-                              borderRadius: BorderRadius.circular(5.0),
+            const SizedBox(height: 14.0),
+            Center(
+              child: RaisedButton(
+                onPressed: _buttonClick,
+                child: const Text('Add'),
+              ),
+            ),
+            const SizedBox(height: 14.0),
+            types == null
+                ? Container(
+                    child: const Text('Loading...'),
+                  )
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: types.length,
+                      padding: const EdgeInsets.only(top: 10.0),
+                      itemExtent: 55.0,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                            key: ValueKey(types[index].id),
+                            title: Container(
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: const Color(0x80000000)),
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                              padding: const EdgeInsets.all(10.0),
+                              child: new Row(
+                                children: <Widget>[
+                                  new Expanded(
+                                    child: Text(types[index].name),
+                                  ),
+                                  Text(types[index].id.toString()),
+                                ],
+                              ),
                             ),
-                            padding: const EdgeInsets.all(10.0),
-                            child: new Row(
-                              children: <Widget>[
-                                new Expanded(
-                                  child: Text(types[index].name),
-                                ),
-                                Text(types[index].id.toString()),
-                              ],
-                            ),
-                          ),
-                          onTap: () {
-                            provider.deleteRecordType(types[index].id);
-                            _getTypes();
-                          });
-                    },
+                            onTap: () {
+                              provider.deleteRecordType(types[index].id);
+                              _getTypes();
+                            });
+                      },
+                    ),
                   ),
-                ),
-        ],
+          ],
+        ),
       ),
     );
   }
