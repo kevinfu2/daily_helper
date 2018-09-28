@@ -11,6 +11,7 @@ final String columnLat = "latitude";
 final String columnLot = "longtitude";
 final String columnStartTime = "starttime";
 final String columnEndTime = "endtime";
+final String columnLocation = "location";
 
 class RecordType {
   int id;
@@ -39,20 +40,22 @@ class Record {
   String name;
   String category;
   double latitude;
-  double longtitude;
+  double longitude;
   DateTime startTime;
   DateTime endTime;
+  String location;
   Record(
-      this.name, this.category, this.latitude, this.longtitude, this.startTime);
+      this.name, this.category, this.latitude, this.longitude, this.startTime, this.location);
 
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
       columnName: name,
       columnCate: category,
       columnLat: latitude,
-      columnLot: longtitude,
+      columnLot: longitude,
       columnStartTime: startTime.toIso8601String(),
       columnEndTime: endTime == null ? null : endTime.toIso8601String(),
+      columnLocation: location,
     };
     if (id != null) {
       map[columnId] = id;
@@ -65,15 +68,16 @@ class Record {
     name = map[columnName];
     category = map[columnCate];
     latitude = map[columnLat];
-    longtitude = map[columnLot];
+    longitude = map[columnLot];
     startTime = DateTime.parse(map[columnStartTime]);
     endTime = map[columnEndTime] == null
         ? DateTime.now()
         : DateTime.parse(map[columnEndTime]);
+    location = map[columnLocation];
   }
 
   static Record init() {
-    return new Record("loading", "default", 0.0, 0.0, DateTime.now());
+    return new Record("loading", "default", 0.0, 0.0, DateTime.now(),"未知");
   }
 }
 
@@ -98,7 +102,8 @@ class RecordDBProvider {
                             $columnLat real not null,
                             $columnLot real not null,
                             $columnStartTime text not null,
-                            $columnEndTime text)
+                            $columnEndTime text,
+                            $columnLocation text not null)
                           ''');
         });
       });
@@ -129,6 +134,7 @@ class RecordDBProvider {
       columnLot,
       columnStartTime,
       columnEndTime,
+      columnLocation,
     ]);
     if (maps.length > 0) {
       return maps.map((f) => Record.fromMap(f)).toList();
@@ -146,6 +152,7 @@ class RecordDBProvider {
           columnLot,
           columnStartTime,
           columnEndTime,
+          columnLocation,
         ],
         where: "$columnEndTime  IS NULL");
     if (maps.length > 0) {

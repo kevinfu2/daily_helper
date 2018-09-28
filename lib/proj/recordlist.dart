@@ -84,7 +84,7 @@ class _RecordList extends State<RecordList> {
                                   bottom: BorderSide(
                                       color: Theme.of(context).dividerColor))),
                           child: ListTile(
-                              title: Text(items[index].name),
+                              title: Text('${items[index].name} ${items[index].location}' ),
                               subtitle: Text('${items[index].startTime}\n${items[index].endTime}'),
                               isThreeLine: true),
                         ),

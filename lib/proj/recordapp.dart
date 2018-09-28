@@ -3,6 +3,7 @@ import 'package:daily_helper/proj/recordlist.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:daily_helper/del/recordtype.dart';
+import 'package:flutter/services.dart';
 
 class RecordApp extends StatefulWidget {
   RecordApp({Key key}) : super(key: key);
@@ -85,16 +86,26 @@ class _RecordApp extends State<RecordApp> {
   }
 
   Future _updatePosition() async {
-    await Geolocator()
-        .getCurrentPosition(LocationAccuracy.high)
-        .then((position) {
-      if (this.mounted)
-        setState(() {
-          _record.latitude = position.latitude;
-          _record.longtitude = position.longitude;
-        });
-      provider.updateRecord(_record);
-    });
+    Position position;
+    List<Placemark> placeMarkers;
+    try {
+      position = await Geolocator().getCurrentPosition(LocationAccuracy.best);
+      placeMarkers = await Geolocator()
+          .placemarkFromCoordinates(position.latitude, position.longitude);
+    } on PlatformException {
+      print('Locate exception happened');
+    }
+    
+    if (position != null) {
+      _record.latitude = position.latitude;
+      _record.longitude = position.longitude;
+    }
+    if (placeMarkers != null) _record.location = placeMarkers[0].name;
+    provider.updateRecord(_record);
+    if (this.mounted) {
+      setState(() {});
+      
+    }
   }
 
   @override
@@ -113,7 +124,7 @@ class _RecordApp extends State<RecordApp> {
               child: Column(
                 children: <Widget>[
                   Text(_record.latitude.toString()),
-                  Text(_record.longtitude.toString()),
+                  Text(_record.longitude.toString()),
                 ],
               ),
             ),

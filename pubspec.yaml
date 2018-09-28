@@ -9,7 +9,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   geolocator: ^1.7.0
-  permission_handler: ^2.0.0
   sqflite: ^0.12.1
   path: ^1.6.2
   path_provider: ^0.4.1
