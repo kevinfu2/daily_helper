@@ -26,13 +26,15 @@ class _RecordList extends State<RecordList> {
     }
     _getTypes();
   }
-  void _getTypes() async{
+
+  void _getTypes() async {
     var _types = await provider.getRecords();
     if (this.mounted)
       setState(() {
         items = _types;
       });
   }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -57,30 +59,36 @@ class _RecordList extends State<RecordList> {
                   child: ListView.builder(
                     itemCount: items.length,
                     padding: const EdgeInsets.only(top: 10.0),
-                    itemExtent: 55.0,
+                    //itemExtent: 55.0,
                     itemBuilder: (context, index) {
-                      return ListTile(
-                          key: ValueKey(items[index].id),
-                          title: Container(
-                            decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: const Color(0x80000000)),
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            padding: const EdgeInsets.all(10.0),
-                            child: new Row(
-                              children: <Widget>[
-                                new Expanded(
-                                  child: Text(items[index].name),
-                                ),
-                                Text(items[index].id.toString()),
-                              ],
-                            ),
-                          ),
-                          onTap: () {
-                            provider.deleteRecord(items[index].id);
-                            _getTypes();
-                          },);
+                      return Dismissible(
+                        key: ObjectKey(items[index]),
+                        direction: DismissDirection.horizontal,
+                        onDismissed: (DismissDirection direction) =>
+                            provider.deleteRecord(items[index].id)
+                        ,
+                        background: Container(
+                            color: Theme.of(context).primaryColor,
+                            child: const ListTile(
+                                leading: Icon(Icons.delete,
+                                    color: Colors.white, size: 36.0))),
+                        secondaryBackground: Container(
+                            color: Theme.of(context).primaryColor,
+                            child: const ListTile(
+                                trailing: Icon(Icons.archive,
+                                    color: Colors.white, size: 36.0))),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Theme.of(context).canvasColor,
+                              border: Border(
+                                  bottom: BorderSide(
+                                      color: Theme.of(context).dividerColor))),
+                          child: ListTile(
+                              title: Text(items[index].name),
+                              subtitle: Text('${items[index].startTime}\n${items[index].endTime}'),
+                              isThreeLine: true),
+                        ),
+                      );
                     },
                   ),
                 ),
