@@ -34,6 +34,9 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+        manifestPlaceholders = [
+                AMAP_KEY : "0e5a51b5b8363ec976105659157ea2ed", /// 高德地图key
+        ]
     }
     signingConfigs {
         release {

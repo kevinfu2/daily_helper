@@ -79,7 +79,7 @@ class _MyProj extends State<MyProj> {
 
   Future _getLocation() async {
     _currentLocation =
-        await Geolocator().getCurrentPosition(LocationAccuracy.high);
+        await Geolocator().getCurrentPosition();
   }
 
   @override

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:daily_helper/proj/recordlist.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:daily_helper/del/recordtype.dart';
 import 'package:flutter/services.dart';
+import 'package:amap_location/amap_location.dart';
 
 class RecordApp extends StatefulWidget {
   RecordApp({Key key}) : super(key: key);
@@ -26,6 +26,8 @@ class _RecordApp extends State<RecordApp> {
   }
 
   Future _initialSelectItem() async {
+    await AMapLocationClient.startup(new AMapLocationOption(
+        desiredAccuracy: CLLocationAccuracy.kCLLocationAccuracyHundredMeters));
     if (provider == null) {
       provider = new RecordDBProvider();
       await provider.open("dh.db");
@@ -85,27 +87,29 @@ class _RecordApp extends State<RecordApp> {
     }
   }
 
+  @override
+  void dispose() {
+    //注意这里关闭
+    AMapLocationClient.shutdown();
+    super.dispose();
+  }
+
   Future _updatePosition() async {
-    Position position;
-    List<Placemark> placeMarkers;
-    try {
-      position = await Geolocator().getCurrentPosition(LocationAccuracy.best);
-      placeMarkers = await Geolocator()
-          .placemarkFromCoordinates(position.latitude, position.longitude);
-    } on PlatformException {
-      print('Locate exception happened');
-    }
     
+    AMapLocation position;
+    //try {
+    position = await AMapLocationClient.getLocation(true);
+    // } on Exception {
+    // print('Locate exception happened');
+    //}
+
     if (position != null) {
       _record.latitude = position.latitude;
       _record.longitude = position.longitude;
+      _record.location = position.formattedAddress;
     }
-    if (placeMarkers != null) _record.location = placeMarkers[0].name;
     provider.updateRecord(_record);
-    if (this.mounted) {
-      setState(() {});
-      
-    }
+    if (this.mounted) setState(() {});
   }
 
   @override
