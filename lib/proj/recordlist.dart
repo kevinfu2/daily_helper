@@ -58,15 +58,14 @@ class _RecordList extends State<RecordList> {
               : Expanded(
                   child: ListView.builder(
                     itemCount: items.length,
-                    padding: const EdgeInsets.only(top: 10.0),
+                    padding: const EdgeInsets.only(top: 3.0),
                     //itemExtent: 55.0,
                     itemBuilder: (context, index) {
                       return Dismissible(
                         key: ObjectKey(items[index]),
                         direction: DismissDirection.horizontal,
                         onDismissed: (DismissDirection direction) =>
-                            provider.deleteRecord(items[index].id)
-                        ,
+                            provider.deleteRecord(items[index].id),
                         background: Container(
                             color: Theme.of(context).primaryColor,
                             child: const ListTile(
@@ -84,9 +83,30 @@ class _RecordList extends State<RecordList> {
                                   bottom: BorderSide(
                                       color: Theme.of(context).dividerColor))),
                           child: ListTile(
-                              title: Text('${items[index].name} ${items[index].location}' ),
-                              subtitle: Text('${items[index].startTime}\n${items[index].endTime}'),
-                              isThreeLine: true),
+                            title: Row(
+                              children: <Widget>[
+                                Container(
+                                  child: Center(
+                                    child: Text('${items[index].name}'),
+                                  ),
+                                  width: 56.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    '${items[index].location}',
+                                    style: TextStyle(color: Colors.lime[900]),
+                                    textScaleFactor: 0.66,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            subtitle: Text(
+                              '${items[index].startTime} ~ ${items[index].endTime}',
+                              style: TextStyle(color: Colors.blueGrey[600]),
+                              textScaleFactor: 0.76,
+                            ),
+                            isThreeLine: false,
+                          ),
                         ),
                       );
                     },

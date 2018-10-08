@@ -1,3 +1,4 @@
+import 'package:daily_helper/calendar/firebase.dart';
 import 'package:daily_helper/proj/recordapp.dart';
 import 'package:flutter/material.dart';
 import 'trace/trace.dart';
@@ -82,7 +83,7 @@ class _MyHomePage extends State<MyHomePage> {
     if (_currentTab.name == '轨迹')
       return Trace();
     else if (_currentTab.name == '日历')
-      return CategoryAPP(
+      return FirebaseApp(
         title: _currentTab.name,
       );
     else

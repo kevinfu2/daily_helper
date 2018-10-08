@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:daily_helper/proj/cateapp.dart';
 import 'package:daily_helper/proj/recordlist.dart';
 import 'package:flutter/material.dart';
 import 'package:daily_helper/del/recordtype.dart';
@@ -95,7 +96,6 @@ class _RecordApp extends State<RecordApp> {
   }
 
   Future _updatePosition() async {
-    
     AMapLocation position;
     //try {
     position = await AMapLocationClient.getLocation(true);
@@ -134,13 +134,10 @@ class _RecordApp extends State<RecordApp> {
             ),
             Text(_record.startTime.toString()),
             Text(_record.name),
-            Text("Select your item: "),
-            Container(
-              padding: EdgeInsets.all(16.0),
-            ),
+            const Text("Select your item: "),
             _dropDownMenuItems == null
                 ? Container(
-                    child: Text('Loading...'),
+                    child: const Text('Loading...'),
                   )
                 : DropdownButton(
                     value: _selectedItem,
@@ -159,6 +156,18 @@ class _RecordApp extends State<RecordApp> {
                 );
               },
               child: Text('View'),
+            ),
+            RaisedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CategoryAPP(
+                            title: "Edit Cate",
+                          )),
+                );
+              },
+              child: Text('EditeCategory'),
             ),
           ],
         ),

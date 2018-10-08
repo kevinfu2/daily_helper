@@ -44,8 +44,8 @@ class Record {
   DateTime startTime;
   DateTime endTime;
   String location;
-  Record(
-      this.name, this.category, this.latitude, this.longitude, this.startTime, this.location);
+  Record(this.name, this.category, this.latitude, this.longitude,
+      this.startTime, this.location);
 
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
@@ -77,7 +77,7 @@ class Record {
   }
 
   static Record init() {
-    return new Record("loading", "default", 0.0, 0.0, DateTime.now(),"未知");
+    return new Record("loading", "default", 0.0, 0.0, DateTime.now(), "未知");
   }
 }
 
@@ -126,16 +126,21 @@ class RecordDBProvider {
   }
 
   Future<List<Record>> getRecords() async {
-    List<Map> maps = await db.query(tableRecord, columns: [
-      columnId,
-      columnName,
-      columnCate,
-      columnLat,
-      columnLot,
-      columnStartTime,
-      columnEndTime,
-      columnLocation,
-    ]);
+    List<Map> maps = await db.query(
+      tableRecord,
+      columns: [
+        columnId,
+        columnName,
+        columnCate,
+        columnLat,
+        columnLot,
+        columnStartTime,
+        columnEndTime,
+        columnLocation,
+      ],
+      orderBy: "$columnStartTime desc",
+      limit: 6,
+    );
     if (maps.length > 0) {
       return maps.map((f) => Record.fromMap(f)).toList();
     }
