@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:synchronized/synchronized.dart';
+import 'package:uuid/uuid.dart';
 
 final String tableRecordType = "recordtype";
 final String tableRecord = "record";
@@ -36,7 +37,7 @@ class RecordType {
 }
 
 class Record {
-  int id;
+  String id;
   String name;
   String category;
   double latitude;
@@ -44,11 +45,12 @@ class Record {
   DateTime startTime;
   DateTime endTime;
   String location;
-  Record(this.name, this.category, this.latitude, this.longitude,
+  Record(this.id, this.name, this.category, this.latitude, this.longitude,
       this.startTime, this.location);
 
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
+      columnId: id,
       columnName: name,
       columnCate: category,
       columnLat: latitude,
@@ -57,9 +59,6 @@ class Record {
       columnEndTime: endTime == null ? null : endTime.toIso8601String(),
       columnLocation: location,
     };
-    if (id != null) {
-      map[columnId] = id;
-    }
     return map;
   }
 
@@ -77,7 +76,8 @@ class Record {
   }
 
   static Record init() {
-    return new Record("loading", "default", 0.0, 0.0, DateTime.now(), "未知");
+    return new Record(
+        new Uuid().v4(), "loading", "default", 0.0, 0.0, DateTime.now(), "未知");
   }
 }
 
@@ -96,7 +96,7 @@ class RecordDBProvider {
                           ''');
           await db.execute('''
                           create table $tableRecord ( 
-                            $columnId integer primary key autoincrement, 
+                            $columnId text primary key, 
                             $columnName text not null,
                             $columnCate text not null,
                             $columnLat real not null,
@@ -111,7 +111,7 @@ class RecordDBProvider {
   }
 
   Future<Record> insertRecord(Record record) async {
-    record.id = await db.insert(tableRecord, record.toMap());
+    await db.insert(tableRecord, record.toMap());
     return record;
   }
 
@@ -120,7 +120,7 @@ class RecordDBProvider {
         where: "$columnId = ?", whereArgs: [record.id]);
   }
 
-  Future<int> deleteRecord(int id) async {
+  Future<int> deleteRecord(String id) async {
     return await db
         .delete(tableRecord, where: "$columnId = ?", whereArgs: [id]);
   }

@@ -14,6 +14,8 @@ dependencies:
   path_provider: ^0.4.1
   synchronized: ^1.5.3
   amap_location: ^0.1.1
+  uuid: ^1.0.3
+  simple_permissions: ^0.1.8
 
 dev_dependencies:
   flutter_test:

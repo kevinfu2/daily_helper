@@ -38,6 +38,7 @@ class _CalAPP extends State<CategoryAPP> {
   void _buttonClick() {
     _insert();
     _getTypes();
+    myController.text = "";
   }
 
   Future _insert() async {

@@ -45,11 +45,20 @@ class _RecordList extends State<RecordList> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          RaisedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('Return'),
+          Row( crossAxisAlignment: CrossAxisAlignment.start,
+           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              RaisedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Return'),
+              ),
+              RaisedButton(
+                onPressed: () {},
+                child: Text('Sync Firebase'),
+              ),
+            ],
           ),
           items == null
               ? Container(

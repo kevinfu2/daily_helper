@@ -37,10 +37,6 @@ class _MyHomePage extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-
-    // _focusNodes["项目"] = FocusScopeNode();
-    // _focusNodes["日历"] = FocusScopeNode();
-    // _focusNodes["轨迹"] = FocusScopeNode();
   }
 
   @override
@@ -48,6 +44,7 @@ class _MyHomePage extends State<MyHomePage> {
     _focusNodes["项目"].detach();
     _focusNodes["日历"].detach();
     _focusNodes["轨迹"].detach();
+    super.dispose();
   }
 
   TabItem _currentTab = tabs[0];
@@ -58,6 +55,7 @@ class _MyHomePage extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    FocusScope.of(context).setFirstFocus(_focusNodes[_currentTab.name]);
     final bottomBar = BottomNavigationBar(
       onTap: (int index) {
         setState(() {
