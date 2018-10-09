@@ -49,6 +49,23 @@ class Record {
   Record(this.id, this.name, this.category, this.latitude, this.longitude,
       this.startTime, this.location);
 
+  @override
+  bool operator ==(other) {
+    // Dart ensures that operator== isn't called with null
+    // if(other == null) {
+    //   return false;
+    // }
+    if (other is! Record) {
+      return false;
+    }
+    return id == (other as Record).id;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode;
+  }
+
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
       columnId: id,
@@ -112,18 +129,15 @@ class RecordDBProvider {
   }
 
   void SyncToFireBase() async {
-    List<Record> records = await getRecords();
-    for (int i = 1; i < records.length; i++) {
-      var querySnap = await Firestore.instance
-          .collection('record')
-          .where("_id", isEqualTo: records[i].id)
-          .getDocuments();
-      if (querySnap.documents.length == 0) {
-        Firestore.instance.collection('record').add(records[i].toMap());
-      } else {
-        break;
-      }
-    }
+    Set<Record> sqliteRecords = (await getRecords()).toSet();
+    var querySnap =
+        await Firestore.instance.collection('record').getDocuments();
+    Set<Record> firebaseRecords =
+        querySnap.documents.map((f) => Record.fromMap(f.data)).toSet();
+    firebaseRecords.difference(sqliteRecords).forEach((f) => insertRecord(f));
+    sqliteRecords
+        .difference(firebaseRecords)
+        .forEach((f) => Firestore.instance.collection('record').add(f.toMap()));
   }
 
   Future<Record> insertRecord(Record record) async {
