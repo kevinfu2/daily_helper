@@ -165,9 +165,25 @@ class _RecordApp extends State<RecordApp> {
                       builder: (context) => CategoryAPP(
                             title: "Edit Cate",
                           )),
-                );
+                ).then<RecordType>((items) {
+                  if (this.mounted)
+                    setState(() {
+                       _dropDownMenuItems = items
+                      .map<DropdownMenuItem<String> >((f) => DropdownMenuItem<String>(
+                            child: Text(f.name),
+                            value: f.name,
+                          ))
+                      .toList();
+                    });
+                });
               },
               child: Text('EditeCategory'),
+            ),
+            RaisedButton(
+              onPressed: () {
+                provider.SyncToFireBase();
+              },
+              child: Text('Sync Firebase'),
             ),
           ],
         ),

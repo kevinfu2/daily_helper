@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:uuid/uuid.dart';
@@ -110,6 +111,21 @@ class RecordDBProvider {
     }
   }
 
+  void SyncToFireBase() async {
+    List<Record> records = await getRecords();
+    for (int i = 1; i < records.length; i++) {
+      var querySnap = await Firestore.instance
+          .collection('record')
+          .where("_id", isEqualTo: records[i].id)
+          .getDocuments();
+      if (querySnap.documents.length == 0) {
+        Firestore.instance.collection('record').add(records[i].toMap());
+      } else {
+        break;
+      }
+    }
+  }
+
   Future<Record> insertRecord(Record record) async {
     await db.insert(tableRecord, record.toMap());
     return record;
@@ -125,7 +141,7 @@ class RecordDBProvider {
         .delete(tableRecord, where: "$columnId = ?", whereArgs: [id]);
   }
 
-  Future<List<Record>> getRecords() async {
+  Future<List<Record>> getRecords({int limit}) async {
     List<Map> maps = await db.query(
       tableRecord,
       columns: [
@@ -139,7 +155,7 @@ class RecordDBProvider {
         columnLocation,
       ],
       orderBy: "$columnStartTime desc",
-      limit: 6,
+      limit: limit,
     );
     if (maps.length > 0) {
       return maps.map((f) => Record.fromMap(f)).toList();

@@ -59,7 +59,13 @@ class _CalAPP extends State<CategoryAPP> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return new Scaffold(
-      appBar: new AppBar(title: new Text('Add Category')),
+      appBar: new AppBar(
+        title: new Text('Add Category'),
+        leading: IconButton(
+          icon: Icon(Icons.chevron_left),
+          onPressed: () => Navigator.pop(context, types),
+        ),
+      ),
       resizeToAvoidBottomPadding: false,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 26.0),

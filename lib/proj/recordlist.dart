@@ -28,7 +28,7 @@ class _RecordList extends State<RecordList> {
   }
 
   void _getTypes() async {
-    var _types = await provider.getRecords();
+    var _types = await provider.getRecords( limit: 6);
     if (this.mounted)
       setState(() {
         items = _types;
