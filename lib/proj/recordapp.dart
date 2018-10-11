@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:daily_helper/proj/cateapp.dart';
+import 'package:daily_helper/proj/recordchart.dart';
 import 'package:daily_helper/proj/recordlist.dart';
 import 'package:flutter/material.dart';
 import 'package:daily_helper/del/recordtype.dart';
@@ -184,6 +185,15 @@ class _RecordApp extends State<RecordApp> {
                 provider.SyncToFireBase();
               },
               child: Text('Sync Firebase'),
+            ),
+             RaisedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RecordChart()),
+                );
+              },
+              child: Text('Chart'),
             ),
           ],
         ),

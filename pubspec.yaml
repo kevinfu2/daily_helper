@@ -16,6 +16,8 @@ dependencies:
   amap_location: ^0.1.1
   uuid: ^1.0.3
   simple_permissions: ^0.1.8
+  charts_flutter: ^0.4.0
+
 
 dev_dependencies:
   flutter_test:
