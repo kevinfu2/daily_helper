@@ -10,6 +10,9 @@ class RecordChart extends StatefulWidget {
 
 class _RecordChart extends State<RecordChart> {
   List<charts.Series<RecordStat, String>> seriesList;
+  List<Record> _original_list;
+  List<RecordStat> _alldata;
+  List<RecordStat> _weekData;
 
   RecordDBProvider provider;
   @override
@@ -23,8 +26,31 @@ class _RecordChart extends State<RecordChart> {
       provider = new RecordDBProvider();
       await provider.open("dh.db");
     }
-    var records = await provider.getRecords();
-    var data = groupBy<Record, String>(records, (record) => record.name)
+    _original_list = await provider.getRecords();
+    _alldata = groupBy<Record, String>(_original_list, (record) => record.name)
+        .map<String, int>((key, value) => MapEntry(
+            key,
+            value.fold<int>(
+                0,
+                (prev, curr) =>
+                    prev + curr.endTime.difference(curr.startTime).inMinutes)))
+        .entries
+        .map<RecordStat>((f) => RecordStat(f.key, f.value))
+        .toList();
+
+    var monday = DateTime.now().subtract(
+      Duration(
+        days: DateTime.now().weekday - 1,
+      ),
+    );
+    var firstDayofWeek = DateTime(
+      monday.year,
+      monday.month,
+      monday.day,
+    );
+    _weekData = groupBy<Record, String>(
+            _original_list.where((r) => r.startTime.isAfter(firstDayofWeek)),
+            (record) => record.name)
         .map<String, int>((key, value) => MapEntry(
             key,
             value.fold<int>(
@@ -43,7 +69,7 @@ class _RecordChart extends State<RecordChart> {
               colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
               domainFn: (RecordStat r, _) => r.name,
               measureFn: (RecordStat r, _) => r.count,
-              data: data),
+              data: _alldata),
         ];
       });
     }
@@ -55,30 +81,56 @@ class _RecordChart extends State<RecordChart> {
       appBar: new AppBar(title: new Text('Chart')),
       body: Column(
         children: <Widget>[
-          seriesList == null
-              ? const Text('Loading')
-              : Expanded(
-                  //padding: EdgeInsets.all(15.0),
-                  child: new charts.BarChart(
-                    seriesList,
-                    animate: true,
-                  ),
-                ),
+          Row(
+            children: <Widget>[
+              RaisedButton(
+                child: Text('ALL'),
+                onPressed: () {
+                  if (this.mounted) {
+                    setState(() {
+                      seriesList = [
+                        new charts.Series<RecordStat, String>(
+                            id: 'Records',
+                            colorFn: (_, __) =>
+                                charts.MaterialPalette.blue.shadeDefault,
+                            domainFn: (RecordStat r, _) => r.name,
+                            measureFn: (RecordStat r, _) => r.count,
+                            data: _alldata),
+                      ];
+                    });
+                  }
+                },
+              ),
+              RaisedButton(
+                child: Text('WEEK'),
+                onPressed: () {
+                  if (this.mounted) {
+                    setState(() {
+                      seriesList = [
+                        new charts.Series<RecordStat, String>(
+                            id: 'Records',
+                            colorFn: (_, __) =>
+                                charts.MaterialPalette.blue.shadeDefault,
+                            domainFn: (RecordStat r, _) => r.name,
+                            measureFn: (RecordStat r, _) => r.count,
+                            data: _weekData),
+                      ];
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
           seriesList == null
               ? const Text('Loading')
               : Expanded(
                   //padding: EdgeInsets.all(15.0),
                   child: Container(
                     padding: EdgeInsets.all(25.0),
-                    child: new charts.PieChart(seriesList,
-                        animate: true,
-                        defaultRenderer: new charts.ArcRendererConfig(
-                            arcWidth: 30,
-                            arcRendererDecorators: [
-                              new charts.ArcLabelDecorator(  
-                                  labelPosition:
-                                      charts.ArcLabelPosition.outside)
-                            ])),
+                    child: new charts.BarChart(
+                      seriesList,
+                      animate: true,
+                    ),
                   ),
                 ),
         ],
