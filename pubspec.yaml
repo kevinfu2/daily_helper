@@ -17,6 +17,8 @@ dependencies:
   uuid: ^1.0.3
   simple_permissions: ^0.1.8
   charts_flutter: ^0.4.0
+  zefyr: ^0.1.0
+  quill_delta: ^1.0.0-dev.3.0
 
 
 dev_dependencies:

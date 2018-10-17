@@ -1,5 +1,6 @@
 import 'package:daily_helper/calendar/firebase.dart';
 import 'package:daily_helper/proj/recordapp.dart';
+import 'package:daily_helper/trace/zefyr.dart';
 import 'package:flutter/material.dart';
 import 'trace/trace.dart';
 import 'proj/cateapp.dart';
@@ -79,7 +80,7 @@ class _MyHomePage extends State<MyHomePage> {
 
   Widget _navigate(BuildContext context) {
     if (_currentTab.name == '轨迹')
-      return Trace();
+      return MyZefyrHomePage();
     else if (_currentTab.name == '日历')
       return FirebaseApp(
         title: _currentTab.name,
@@ -102,6 +103,7 @@ class _MyHomePage extends State<MyHomePage> {
               print(routeSettings.name + ' ' + tabItem.name);
               return MaterialPageRoute(
                 builder: (context) => _navigate(context),
+                fullscreenDialog: true,
               );
             },
           ),
